@@ -29,6 +29,6 @@ app.listen({ port: env.PORT }, (err, address) => {
 
   if (env.NODE_ENV === 'development') {
     // biome-ignore lint/suspicious/noConsole: Dev only use
-    console.log(`✨ Captto server is now listening on ${address}`);
+    console.log(`✨ Captto server is now listening on ${address}/health`);
   }
 })
