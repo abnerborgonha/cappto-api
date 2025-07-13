@@ -1,6 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from '@/db/connection.ts';
 import { schema } from '@/db/schema/index.ts';
+import { BadRequestError } from '@/errors/error-classes.ts';
 import { axiosClient } from '@/lib/axios.ts';
 import { supabase } from '@/lib/supabase.ts';
 import { CetesbProvider } from '@/providers/cetesb.provider.ts';
@@ -31,7 +32,7 @@ export async function searchCetesbCompanies({
     );
 
   if (!result[0]) {
-    throw new Error('Failed to get provider');
+    throw new BadRequestError('Provider not found');
   }
 
   const provider = result[0];
@@ -41,42 +42,36 @@ export async function searchCetesbCompanies({
       month,
       year,
       baseUrl: provider.apiBaseUrl,
-      urlTemplate: provider.metadata.url_template
+      urlTemplate: provider.metadata.url_template,
     });
 
     const cetesbUrl = cetesbProvider.getUrl();
 
-    try {
-      const response = await axiosClient.downloadStream({ url: cetesbUrl });
-      const bucketName = provider.metadata.bucket_name;
-      const path = supplant(provider.metadata.path_file_template, {
-        date: Date.now(),
+    const response = await axiosClient.downloadStream({ url: cetesbUrl });
+    const bucketName = provider.metadata.bucket_name;
+    const path = supplant(provider.metadata.path_file_template, {
+      date: Date.now(),
+    });
+
+    const downloadStream = response.data;
+    const contentType = response.headers['content-type'];
+
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .upload(path, downloadStream, {
+        contentType: contentType || 'application/octet-stream',
+        upsert: true,
+        duplex: 'half',
       });
 
-      const downloadStream = response.data;
-      const contentType = response.headers['content-type'];
-
-      const { data, error } = await supabase.storage
-        .from(bucketName)
-        .upload(path, downloadStream, {
-          contentType: contentType || 'application/octet-stream',
-          upsert: true,
-          duplex: 'half',
-        });
-
-      if (error) {
-        throw error;
-      }
-
-      const { data: publicUrlData } = supabase.storage
-        .from(bucketName)
-        .getPublicUrl(data.path);
-
-      return publicUrlData.publicUrl;
-    } catch (error) {
-      // biome-ignore lint/suspicious/noConsole: test
-      console.error('Falha no processo de download.', error);
-      throw new Error('Fail to download process.');
+    if (error) {
+      throw error;
     }
+
+    const { data: publicUrlData } = supabase.storage
+      .from(bucketName)
+      .getPublicUrl(data.path);
+
+    return publicUrlData.publicUrl;
   }
 }

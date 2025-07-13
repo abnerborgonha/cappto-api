@@ -1,10 +1,11 @@
 import type { FastifyPluginCallbackZod } from 'fastify-type-provider-zod';
 import { z } from 'zod/v4';
+import { BadRequestError } from '@/errors/error-classes.ts';
 import { searchCetesbCompanies } from '@/services/search-cetesb-companies.ts';
 
 const selectedProvider = {
-  cetesb: searchCetesbCompanies
-}
+  cetesb: searchCetesbCompanies,
+};
 
 export const searchCompanies: FastifyPluginCallbackZod = (app) => {
   app.get(
@@ -16,18 +17,22 @@ export const searchCompanies: FastifyPluginCallbackZod = (app) => {
         }),
         querystring: z.object({
           year: z.string(),
-          month: z.string()
-        })
+          month: z.string(),
+        }),
       },
     },
     async (request, replay) => {
       const { params, query } = request;
 
-      const executeProvider = selectedProvider[params.provider]
+      const executeProvider = selectedProvider[params.provider];
+
+      if (!executeProvider) {
+        throw new BadRequestError('Provider not found');
+      }
 
       const result = await executeProvider({
         year: Number(query.year),
-        month: Number(query.month)
+        month: Number(query.month),
       });
 
       return replay.status(201).send(result);

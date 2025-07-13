@@ -8,6 +8,7 @@ import {
 
 import { env } from '@/env.ts';
 import { searchCompanies } from '@/http/routes/search-companies.ts';
+import { globalErrorHandler } from './errors/global-error-api.ts';
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -17,6 +18,8 @@ app.register(fastifyCors, {
 
 app.setSerializerCompiler(serializerCompiler);
 app.setValidatorCompiler(validatorCompiler);
+
+app.setErrorHandler(globalErrorHandler);
 
 app.get('/health', () => {
   return { status: 'ok' };
