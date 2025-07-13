@@ -15,6 +15,13 @@
       "when": 1752121107832,
       "tag": "0001_bent_magneto",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1752421081629,
+      "tag": "0002_dark_tigra",
+      "breakpoints": true
     }
   ]
 }
