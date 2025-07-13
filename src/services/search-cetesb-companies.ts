@@ -76,7 +76,7 @@ export async function searchCetesbCompanies({
     } catch (error) {
       // biome-ignore lint/suspicious/noConsole: test
       console.error('Falha no processo de download.', error);
-      throw new Error('Falha no processo de download.');
+      throw new Error('Fail to download process.');
     }
   }
 }
