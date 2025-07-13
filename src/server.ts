@@ -6,7 +6,8 @@ import {
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 
-import { env } from './env.ts';
+import { env } from '@/env.ts';
+import { searchCompanies } from '@/http/routes/search-companies.ts';
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -20,10 +21,11 @@ app.setValidatorCompiler(validatorCompiler);
 app.get('/health', () => {
   return { status: 'ok' };
 });
+app.register(searchCompanies);
 
 app.listen({ port: env.PORT }, (err, address) => {
   if (err) {
-    app.log.error(err)
+    app.log.error(err);
     process.exit(1);
   }
 
@@ -31,4 +33,4 @@ app.listen({ port: env.PORT }, (err, address) => {
     // biome-ignore lint/suspicious/noConsole: Dev only use
     console.log(`✨ Captto server is now listening on ${address}/health`);
   }
-})
+});
