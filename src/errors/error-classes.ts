@@ -46,3 +46,11 @@ export class UnprocessableEntityError extends ApiError {
     super(message, 422, true, errorCode, errors);
   }
 }
+
+
+// 500 - Internal Server Error
+export class InternalServerError extends ApiError {
+  constructor(message = 'Internal Server Error', errorCode = 'general/internal-server-error') {
+    super(message, 500, true, errorCode);
+  }
+}

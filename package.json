@@ -24,6 +24,7 @@
     "fastify-type-provider-zod": "^5.0.2",
     "postgres": "^3.4.7",
     "tmp": "^0.2.3",
+    "xlsx": "^0.18.5",
     "zod": "^4.0.2"
   },
   "devDependencies": {

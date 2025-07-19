@@ -1,7 +1,7 @@
 export const months = Object.freeze([
   'janeiro',
   'fevereiro',
-  'março',
+  'marco',
   'abril',
   'maio',
   'junho',

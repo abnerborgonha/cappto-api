@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/suspicious/noConsole: <explanation> */
+/** biome-ignore-all lint/correctness/noUnusedVariables: <explanation> */
 import { and, eq } from 'drizzle-orm';
 import { db } from '@/db/connection.ts';
 import { schema } from '@/db/schema/index.ts';
@@ -6,16 +8,21 @@ import { axiosClient } from '@/lib/axios.ts';
 import { supabase } from '@/lib/supabase.ts';
 import { CetesbProvider } from '@/providers/cetesb.provider.ts';
 import { supplant } from '@/utils/supplant.ts';
+import { extractCetesbCompanies } from './extract-cetesb-companies.ts';
 
-export type SearchCetesbCompaniesParams = {
+export type DownloadCetesbCompaniesParams = {
   month: number;
   year: number;
 };
 
-export async function searchCetesbCompanies({
+export async function downloadCetesbCompanies({
   month,
   year,
-}: SearchCetesbCompaniesParams) {
+}: DownloadCetesbCompaniesParams): Promise<{
+  path: string;
+  bucketName: string;
+  publicUrl: string;
+} | undefined> {
   const result = await db
     .select({
       acronym: schema.providers.acronym,
@@ -72,6 +79,12 @@ export async function searchCetesbCompanies({
       .from(bucketName)
       .getPublicUrl(data.path);
 
-    return publicUrlData.publicUrl;
+    await extractCetesbCompanies({ bucketName, path });
+
+    return {
+      path,
+      bucketName,
+      publicUrl: publicUrlData.publicUrl
+    };
   }
 }

@@ -1,10 +1,10 @@
 import type { FastifyPluginCallbackZod } from 'fastify-type-provider-zod';
 import { z } from 'zod/v4';
 import { BadRequestError } from '@/errors/error-classes.ts';
-import { searchCetesbCompanies } from '@/services/search-cetesb-companies.ts';
+import { cetesbService } from '@/services/cetesb/index.ts';
 
 const selectedProvider = {
-  cetesb: searchCetesbCompanies,
+  cetesb: cetesbService,
 };
 
 export const searchCompanies: FastifyPluginCallbackZod = (app) => {
